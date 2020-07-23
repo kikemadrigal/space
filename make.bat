@@ -46,9 +46,9 @@ start /wait tools/Disk-Manager/DISKMGR.exe -A -F -C bin/main.dsk src/SCR1P1.SC5
 
 rem /***********Abriendo el emulador***********/
 rem Abriendo con openmsx, presiona f9 al arrancar para que vaya rápido
-rem start /wait emulators/openmsx/openmsx.exe -machine Philips_NMS_8255 -diska bin/main.dsk
+start /wait emulators/openmsx/openmsx.exe -machine Philips_NMS_8255 -diska bin/main.dsk
 rem Abriendo con FMSX https://fms.komkon.org/fMSX/fMSX.html
 rem start /wait emulators/fMSX/fMSX.exe -diska main.dsk
-copy bin\main.dsk emulators\blueMSX
-start /wait emulators/BlueMSX/blueMSX.exe -diska main.dsk
+rem copy bin\main.dsk emulators\blueMSX
+rem start /wait emulators/BlueMSX/blueMSX.exe -diska main.dsk
 

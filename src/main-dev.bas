@@ -4,7 +4,7 @@
 
 1 ' Variables
 1 '------------'
-1 ' Screen: 
+1 ' Screen: w, h, si, sc
 1 ' Player: px py pw ph pd pu pv pe pc
 1 ' Enemy: 
 1 ' fire: 
@@ -14,7 +14,7 @@
 1 ' Lines
 1 '--------'
 1 ' Splash screen: 40'
-1 ' Screen 1: 80'
+1 ' Screen 1: Inicialize 10000, load sc5: 10220, Load line block: 10500 '
 1 ' Game over: 900'
 1 ' General rutines: '
 1 '     Renderer: 2000 '
@@ -82,14 +82,12 @@
 1080 gosub 10220
 1 ' Dibujamos la page 0 que es la que se muestra'
 1090 gosub 10400
-1 ' Le decimos que limpie la zona de los sprites para que no salga la franja
-1 ' donde se definen los sprites que justa va desde 212 px a 256px
+1 ' Le decimos que limpie la zona de los sprites para que no salga la franja sucia
+1 ' donde se definen los sprites que va justo desde 212 px a 256px
 1 ' La rutina 69 está defina en la bios ver: http://map.grauw.nl/resources/msxbios.php
 1100 defusr=&H69:x=usr(0)
 1 ' Le quitamos la parte sucia a la page 0'
 1110 COPY(0,0)-(255,256-212),0 TO (0,212),0 
-1 ' y la copiamos a la page 1'
-1115 'COPY(0,0)-(255,212),0 TO (0,0),1
 1 ' Cargamos todos los sprites de la pantalla 1'
 1120 gosub 10300
 1 ' Esto es solo para pruebas de velocidad'
@@ -119,12 +117,11 @@
 1 '-----------------------------------------------------------------'
 
 1 ' ----------------------'
-1 '   Sistema de renderer
+1 '   Sistema de renderer / render system
 1 ' ----------------------'
     1' Inicio blucle
-        1 ' hay que hacer esta paranoia de for con si=screen increment para mover la pantalla'
+        1 ' Hay que hacer esta paranoia de for con si=screen increment para mover la pantalla'
         2000 for si=255 to 0 step -1
-            2005 'if si mod 5=0 then gosub 9900
             2010 VDP(24)=si
             1 ' Cargar bloques en la pantalla
             2020 gosub 10600
@@ -151,7 +148,6 @@
 1 ' Chequeo energia y capturas player' 
     1 ' Si se termina la energía vamos a la rutina de finalización pantalla 1'
     3000 if pe=0 then gosub 500
-    3010 'if pc=10 then interval off: close: gosub 700
 3040 return
 1 ' ----------------------'
 1 'Subrutina captura movimiento joystick / cursores y boton de disparo'
@@ -164,14 +160,11 @@
 1 ' ----------------------'
 1 '   Sistema de colisiones
 1 ' ----------------------'
-
-1 'Rutina comprobar colisiones https://developer.mozilla.org/es/docs/Games/Techniques/2D_collision_detection'
-    1 ' Rutina colisión disparo con player'
-    1 ' colosión arriba'
+    1 ' Colosión arriba - detección color gris'
     5000 IF POINT(px,py)=14 OR POINT(px+15,py)=14 THEN py=py+2
-    1 ' arriba a la izquierda'
+    1 ' arriba abajo - detección color gris'
     5020 IF POINT(px,py+16)=14 OR POINT(px+15,py+16)=14 then py=py-2
-    1 ' Rutina colisiones disparo'
+    1 ' Rutina colisiones disparo https://developer.mozilla.org/es/docs/Games/Techniques/2D_collision_detection''
     5040 if px < dx(1) + dw(1) and  px + pw > dx(1) and py < dy(1) + dh(1) and ph + py > dy(1) then play "t230o3d"
     5050 if ex < dx(0) + dw(0) and  ex + ew > dx(0) and ey < dy(0) + dh(0) and eh + ey > dy(0) then play "t230o4a"
 5070 return
@@ -186,7 +179,7 @@
 1 ' ----------------------' 
 1 '   Mostrar información
 1 ' ----------------------'
-1 ' Pintamos un rectangulo en la parte superior de la pantalla', color 14 gris claro, bf es un rectangulo relleno y mostramos las caputras
+1 ' Mostraremos los sprites cargados en la page 2 que son los números que aparecen arriba con la información
     7000 'sprite 60,(),15,60
 7050 return
 
@@ -235,15 +228,14 @@
 1 ' -------------------------Rutinas player --------------------------------------'
 1 ' ------------------------------------------------------------------------------'
 1 ' Inicializacion del personaje
-    1 ' parámteros personaje, posición px=x,py= posición eje y, pw=ancho del sprite ph=alto
+    1 ' parámteros personaje
+    1 ' px=posición ,py= posición eje y, pw=ancho del sprite, ph=alto
     1 ' pd=dirección arriba ^ 1, derecha > 3, abajo v 5, izquierda < 7
-    1 ' pu=player up/salto'
     1 ' pv=velocidad, pe=energia,  pc=caputras 
-    8000 let px=100: let py=h-64: let pw=16: let ph=16: let pd=3: let pu=0: let pv=10: let pe=100: let pc=0
-    1 ' variables para manejar los sprites, 
-    1 ' ps=payer sprite, lo cremaos con el spritedevtools en desdde 1 al 9, para cambiarle el sprite según la tecla que pulsemos
-    1 ' pp=player plano; para cambiarlo en el plano osprite paraq ue de la sención de movimento
-    1 ' player incremento, hay que sumarle eto a la posición y del player para que no le afecte el scroll'
+    8000 let px=100: let py=h-64: let pw=16: let ph=16: let pd=3: let pv=10: let pe=100: let pc=0
+    1 ' variables para manejar los sprites:
+    1 ' ps=payer sprite, lo cremaos con el spritedevtools 
+    1 ' pp=para ponerle el mismo plano a otros sprites 
     8010 let ps=0: let pp=1
 8020 return
 
@@ -251,6 +243,7 @@
 1 '------------------------'
 1 'Subrutina actualizar player - sistema de scroll'
 1 '------------------------'
+    1 ' Mi sprite está compuesto por 2 sprites que se mueve a la vez en las mismas coordenadas'
     8100 put sprite 0,(px,py+si),,0
     8110 put sprite 1,(px,py+si),,1
 8160 return
@@ -272,24 +265,20 @@
     1' 1 se suma a la posición x la velocidad del player
     8300 px=px+pv
     8310 if px>=w-pw then px=w-pw
-    8320 'gosub 7000
 8330 return
  1 ' Mover izquierda'
     8400 px=px-pv
     8410 if px<0 then px=0
-    8420 'gosub 7000
 8430 return
 1 ' Mover arriba
     1 ' con pu le decimos que está saltando, al tocas la tierra volveremos a poner pu=0'
     8500 py=py-pv
     1 ' com esto evitamos que el player salga de la pantalla'
     8510 if py<=0 then py=0
-    8520 'gosub 7000
 8530 return
 1 ' Mover abajo'
     8600 py=py+pv
     8610 if py>200 then py=200
-    8620 'gosub 7000
 8630 return
 
 
@@ -312,6 +301,8 @@
 1 ' -------------------------Rutinas enemy --------------------------------------'
 1 ' ------------------------------------------------------------------------------'
 1 ' Inicializacion del personaje
+    1 ' ex= enemigo posición x, ey= enemigo posición y, ew=enemigo ancho, eh=enemigo alto'
+    1 ' ev= enemigo velocidad'
     1 ' ec=enemigo contador, variable utilizada para que cada cierto tiempo dispare'
     9000 let ex=10: let ey=0: let ew=16: let eh=16: let ev=10: let ec=0
 9010 return
@@ -320,9 +311,11 @@
 1 '------------------------' 
 1 'Subrutina actualizar enemy'
 1 '------------------------'
+    1 ' le vamos sumando la velocidd, la velocidd se invertirá cuando toque los extremos de la pantalla'
     9100 ex=ex+ev
     1 ' Si la ex es mayor que 200 o menor que 4 se invierte la velocidad y Le cambiamos la posición y'
     9120 if ex>200 or ex<4 then ev=-ev :ey=rnd(-time)*100
+    1 ' pintamos al enemigo'
     9130 put sprite 2,(ex,(ey+si)),,2
 9160 return
 
@@ -350,30 +343,43 @@
 1 ' ------------------------------------------------------------------------------'
 1 ' -------------------------Rutinas disparos / fire --------------------------------------'
 1 ' ------------------------------------------------------------------------------'
+    1 ' Crearemos 2 disparos, el dx es el disparo del player, el dx es el del enemigo'
+    1 ' dv es la velocidad de los disparos, da es si el disparo está activo'
+    1 ' dc es una variable utilizada para que enemigo dispare de vez en cuando'
     9500 dn=1
     9510 dim dx(dn),dy(dn),dw(dn),dh(dn),dv(dn),da(dn),dc(dn)
     9520 for i=0 to dn
         9530 dx(dn)=-16:dy(dn)=-40:dw(dn)=16:dh(dn)=16:dv(dn)=10:da(dn)=0:dc(dn)=0
     9540 next i
-    9550 'put sprite 3,(-10,-10),,3
 9560 return
 
 1 ' Asignar disparo player
+    1 ' cuando se pulse la barra espaciador (declarada al principio), vendrá a la linea 960'
+    1 ' Desactivamos el disparo para que no se pueda volver a pulsar la barra'
     9600 strig(0) off: beep
+    1 ' Le ponemos que las corrdenadas del disparo sean las del personaje, el +8 es para que salga centrado'
     9610 dx(0)=px+8: dy(0)=py: da(0)=1
 9620 return
+
 1 ' Adignar disparo enemigo'
+    1 ' Le ponemos a este disparo la posición del enemigo'
+    1 ' da(0)=1, es para ayudarnos a no disparar otra vez, ver línea 9710
     9630 dx(1)=ex: dy(1)=ey: da(1)=1
 9640 return 
 
 
 1' actualizar disparo
+    1 ' Icrementamos el contador del disparo'
     9700 dc(1)=dc(1)+1
+    1 ' Si el resto de dividir contador entre 5 es 0 y el disparo está activo le asignamos rl disparo'
     9710 if dc(1) mod 5=0 and da(1) <> 1 then gosub 9630
+    1 ' Si los disparos está actimos, le restamos la posición y al disparo del player y la restamos al enemigo'
     9720 if da(0)=1 then dy(0)=dy(0)-10
     9730 if da(1)=1 then dy(1)=dy(1)+dv(1)
+    1 ' Controlando los límites'
     9740 if dy(0)>212 or dy(0)<-16 then dy(0)=-40: da(0)=0: strig(0) on
     9750 if dy(1)>212 or dy(1)<-16 then dy(1)=-40: da(1)=0
+    1 ' Dibujando, el +si es para que no se mueva el sprite por la paranoia del scroll'
     9760 put sprite 3,(dx(0),(dy(0)+si)),15,3
     9770 put sprite 4,(dx(1),(dy(1)+si)),15,3
 9780 return
@@ -387,6 +393,9 @@
 1 '-----------------------------------------------------------------'
 1 '---------------------Objetos sólidos------------------------------'
 1 '-----------------------------------------------------------------'
+    1 ' Este código se llamará desde el renderer->que llama a otra rutina que suma el screen counter
+    1 ' si este screen counter llega a 250 (al final de la pantalla se vuelva a dibujar la page 1
+    1 ' y pintamos unos lines'
     9900 COPY(0,0)-(255,212),1 TO (0,0),0
     9910 line (100,0)-(rnd(-time)*200,rnd(-time)*20),14,bf
     9920 line (10,0)-(rnd(-time)*200,rnd(-time)*20),14,bf
@@ -408,17 +417,19 @@
     1 ' Parametros pantalla
     10000 let w=256: let h=212 
     1 ' si= screen incremento,variable para saber la posición de la pantalla que se mueve
-    10010 let si=0
-    1 ' contador de posición y scroll'
-    10020 let sy=255:sc=0
+    1 ' sc= screen count, variable utilizada para hacer copyes de dibujos bonitos de otras pages o lines '
+    10010 let si=0: sc=0
+    1 ' Contador de posición y scroll'
+    10020 'let sy=255
 10030 return
 
-1 ' carga de las pages de la pantalla 1'
+1 ' Carga del archivo scr1p1 para ponerloen la page 1 
     10220 BLOAD"SCR1P1.SC5",S,32768 
     10230 color=restore
 10250 return
 
 1 ' Carga de sprites'
+    1 ' Cargamos los sprites con las rutinas que están en el archivo rutinas.asm->rutinas.bin'
     10300 bload "rutinas.bin"
     10310 defusr=50000
     10320 a=usr(0)
@@ -429,20 +440,18 @@
 10410 return
 
 1 ' ----------------------'
-1 '   Sistema de scroll pantalla 1
+1 '   2º  Sistema de scroll pantalla 1 - más lento
 1 ' ----------------------'
     1 ' Inicia scroll
-    10500 '_turbo on(sy)
-    10510 if sy<=0 then sy=255
-    10520 sy=sy-1
-    10560 COPY(0,sy)-(256,212-30),1 TO (0,30),0
-    10570 '_turbo off
+    10500 'if sy<=0 then sy=255
+    10520 'sy=sy-1
+    10560 'COPY(0,sy)-(256,212-30),1 TO (0,30),0
 10580 return
 
 
-1' Catgar bloque en pantalla si el screen contador es 255
+1' Cargar bloque (que es un line) en pantalla si el screen contador es 255
     10600 sc=sc+1
-    10610 if sc=256 then gosub 9900:sc=0
+    10610 if sc=250 then gosub 9900:sc=0
 10620 return
 
 
@@ -475,50 +484,51 @@
 1 '-----------------------------------------------------'
 1 'Esta sección está imutizada es solo para pruebas de velocidad
 1 '-----------------------------------------------------'
-    33000 s=base(29)
-    1' 8 Es el número de sprites que tenemos dibujados
-    33005 for sp=0 to 3
-        33006 a$=""
-        33010 for i=0 to (32)-1
-            33020 read a
-            33030 'vpoke s+i,a
-            33035 a$=a$+chr$(a)
-        33040 next i
-        33045 sprite$(sp)=a$
-    33046 next sp
-    33050 DATA &H00,&H00,&H00,&H30,&H30,&H30,&H30,&H3F
-    33060 DATA &H30,&H30,&H30,&H3F,&H3F,&H1F,&H07,&H03
-    33070 DATA &H00,&H00,&H00,&H0C,&H0C,&H0C,&H0C,&HFC
-    33080 DATA &H0C,&H0C,&H0C,&HFC,&HFC,&HFC,&HF0,&HE0
-    33090 DATA &H30,&H30,&H70,&H91,&H91,&H91,&H93,&H9F
-    33100 DATA &H9F,&H9F,&H80,&HBF,&H8F,&H67,&H33,&H30
-    33110 DATA &H08,&H0C,&H0E,&H89,&H89,&H89,&HC9,&HF9
-    33120 DATA &HF9,&HF9,&H01,&HFD,&HF1,&HE6,&HCC,&H0C
-    33130 DATA &H00,&H00,&H18,&H08,&H0C,&H04,&H1D,&H02
-    33140 DATA &H0F,&H07,&H4B,&H18,&H13,&H0E,&H38,&H20
-    33150 DATA &H00,&H00,&H00,&H8C,&H98,&HB0,&H20,&H80
-    33160 DATA &H00,&H00,&H48,&H40,&HEC,&H36,&H12,&H00
-    33170 DATA &H80,&H00,&H00,&H00,&H00,&H00,&H00,&H00
-    33180 DATA &H00,&H00,&H00,&H00,&H00,&H00,&H00,&H00
-    33190 DATA &H00,&H00,&H00,&H00,&H00,&H00,&H00,&H00
-    33200 DATA &H00,&H00,&H00,&H00,&H00,&H00,&H00,&H00
-    1' Rellenamos la tabla de colores del sprite 0 
-
-    33710 for sp=0 to 3
-        33720 a$=""
-        33800 for i=0 to (16)-1
-            33810 read a
-            33820 'vpoke &h7400+i, a
-            33825 a$=a$+chr$(a)
-        33830 next i
-        33835 color sprite$(sp)=a$
-    33836 next sp
-    33840 DATA &H07,&H07,&H07,&H07,&H07,&H07,&H07,&H07
-    33850 DATA &H07,&H07,&H07,&H07,&H07,&H08,&H08,&H0A
-    33860 DATA &H0E,&H0E,&H0E,&H0E,&H0E,&H0E,&H0E,&H0E
-    33870 DATA &H0E,&H0E,&H0E,&H0E,&H0E,&H0E,&H0E,&H0E
-    33880 DATA &H08,&H08,&H08,&H08,&H08,&H08,&H08,&H0B
-    33890 DATA &H0A,&H0A,&H08,&H08,&H08,&H08,&H08,&H08
-    33900 DATA &H0A,&H0F,&H0F,&H0F,&H0F,&H0F,&H0F,&H0F
-    33910 DATA &H0F,&H0F,&H0F,&H0F,&H0F,&H0F,&H0F,&H0F
-33920 return
+    1 ' Si estás es visual studio code puedes pulsar Ctrl+Alt+d y con las flechas de los cursores hacer un multicursor '
+    1' 1' 8 Es el número de sprites que tenemos dibujados 1
+    1' 33000 s=base(29)
+    1' 33005 for sp=0 to 3
+    1'     33006 a$=""
+    1'     33010 for i=0 to (32)-1
+    1'         33020 read a
+    1'         33030 'vpoke s+i,a
+    1'         33035 a$=a$+chr$(a)
+    1'     33040 next i
+    1'     33045 sprite$(sp)=a$
+    1' 33046 next sp
+    1' 33050 DATA &H00,&H00,&H00,&H30,&H30,&H30,&H30,&H3F
+    1' 33060 DATA &H30,&H30,&H30,&H3F,&H3F,&H1F,&H07,&H03
+    1' 33070 DATA &H00,&H00,&H00,&H0C,&H0C,&H0C,&H0C,&HFC
+    1' 33080 DATA &H0C,&H0C,&H0C,&HFC,&HFC,&HFC,&HF0,&HE0
+    1' 33090 DATA &H30,&H30,&H70,&H91,&H91,&H91,&H93,&H9F
+    1' 33100 DATA &H9F,&H9F,&H80,&HBF,&H8F,&H67,&H33,&H30
+    1' 33110 DATA &H08,&H0C,&H0E,&H89,&H89,&H89,&HC9,&HF9
+    1' 33120 DATA &HF9,&HF9,&H01,&HFD,&HF1,&HE6,&HCC,&H0C
+    1' 33130 DATA &H00,&H00,&H18,&H08,&H0C,&H04,&H1D,&H02
+    1' 33140 DATA &H0F,&H07,&H4B,&H18,&H13,&H0E,&H38,&H20
+    1' 33150 DATA &H00,&H00,&H00,&H8C,&H98,&HB0,&H20,&H80
+    1' 33160 DATA &H00,&H00,&H48,&H40,&HEC,&H36,&H12,&H00
+    1' 33170 DATA &H80,&H00,&H00,&H00,&H00,&H00,&H00,&H00
+    1' 33180 DATA &H00,&H00,&H00,&H00,&H00,&H00,&H00,&H00
+    1' 33190 DATA &H00,&H00,&H00,&H00,&H00,&H00,&H00,&H00
+    1' 33200 DATA &H00,&H00,&H00,&H00,&H00,&H00,&H00,&H00
+    1' 1' Rellenamos la tabla de colores del sprite 0 
+1' 
+    1' 33710 for sp=0 to 3
+    1'     33720 a$=""
+    1'     33800 for i=0 to (16)-1
+    1'         33810 read a
+    1'         33820 'vpoke &h7400+i, a
+    1'         33825 a$=a$+chr$(a)
+    1'     33830 next i
+    1'     33835 color sprite$(sp)=a$
+    1' 33836 next sp
+    1' 33840 DATA &H07,&H07,&H07,&H07,&H07,&H07,&H07,&H07
+    1' 33850 DATA &H07,&H07,&H07,&H07,&H07,&H08,&H08,&H0A
+    1' 33860 DATA &H0E,&H0E,&H0E,&H0E,&H0E,&H0E,&H0E,&H0E
+    1' 33870 DATA &H0E,&H0E,&H0E,&H0E,&H0E,&H0E,&H0E,&H0E
+    1' 33880 DATA &H08,&H08,&H08,&H08,&H08,&H08,&H08,&H0B
+    1' 33890 DATA &H0A,&H0A,&H08,&H08,&H08,&H08,&H08,&H08
+    1' 33900 DATA &H0A,&H0F,&H0F,&H0F,&H0F,&H0F,&H0F,&H0F
+    1' 33910 DATA &H0F,&H0F,&H0F,&H0F,&H0F,&H0F,&H0F,&H0F
+33921' 0 return

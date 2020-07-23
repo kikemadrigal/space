@@ -84,15 +84,7 @@
 
 
 
-1000 clear:screen 0:cls:key off
-
-1010 color 15,1,1: defint a-z
-1020 locate 10,5
-1030 print "Level 1"
-1040 locate 0,10
-1050 print "Llega hasta la nave central"
-
-1060 screen 5,2
+1000 clear:screen 5,2:color 15,1,1: defint a-z
 
 1070 open "grp:" for output as #1
 

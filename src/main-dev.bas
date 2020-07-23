@@ -84,15 +84,7 @@
 1 '------------------------------------'
 
 1 ' borramos todas las variables,borramos la pantalla y quitamos las letras de las teclas de función'
-1000 clear:screen 0:cls:key off
-1 ' Color letras blancas, fondo azul oscuro'
-1010 color 15,1,1: defint a-z
-1020 locate 10,5
-1030 print "Level 1"
-1040 locate 0,10
-1050 print "Llega hasta la nave central"
-1 ' ponemos la pantalla buena'
-1060 screen 5,2
+1000 clear:screen 5,2:color 15,1,1: defint a-z
 1 ' Creamos un canal para poder escribir'
 1070 open "grp:" for output as #1
 1 ' Cargamos las pages de la pantalla 1'

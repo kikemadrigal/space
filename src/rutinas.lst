@@ -1,0 +1,134 @@
+Sjasm Z80 Assembler v0.42c - www.xl2s.tk             [2020.07.23 - 07:21:16]
+
+src/rutinas.asm
+Errors: 0
+
+       1   00:0000                              output "rutinas.bin"
+       2   00:C350                      
+       3   00:C350  FE                      db   #fe               ; ID archivo binario, siempre hay que poner el mismo 0FEh
+       4   00:C351  50 C3                   dw   INICIO            ; dirección de inicio
+       5   00:C353  30 C4                   dw   FINAL - 1         ; dirección final
+       6   00:C355  50 C3                   dw   INICIO             ; dircción del programa de ejecución (para cuando pongas r en bload"nombre_programa", r)
+       7   00:C357                      
+       8   00:C357                          org 50000 ; o #f230, org se utiliza para decirle al z80 en que posición de memoria RAM empieza nuestro programa en ensamblador
+       9   00:C350                      
+      10   00:C350  (00:005F)           CHGMOD equ #005F   ; Cambia el modo de screen pero previamente necesita que se le asigne el modo en el registro a
+      11   00:C350  (00:005C)           LDIRVM equ #005C   ;Tansfiere bloques de la RAM a la VRAM, es la más importante, necesita previamente asignar valor al registro bc con la longitud, dc con la dirección de inicio de la VRAM y hl con la dirección de inicio de la RAM:
+      12   00:C350  (00:00D5)           GTSTCK equ #00D5   ;si le pasas al registro a un 0 detectará los cursores,un 1 para el joystick 1 y 2 para el joystick 2
+      13   00:C350                                         ;devuelve en a 1 arriba, 2 diagonal arriba derecha,3 derecha, asi hasta 7
+      14   00:C350                      
+      15   00:C350                      INICIO:
+      16   00:C350  CD 57 C3                call volcar_sprites_de_disco_a_vram
+      17   00:C353  CD 64 C3                call volcar_colores_sprites_de_disco_a_vram
+      18   00:C356  C9                      ret
+      19   00:C357                      
+      20   00:C357                      
+      21   00:C357                      
+      22   00:C357                      volcar_sprites_de_disco_a_vram:
+      23   00:C357  21 71 C3                ld hl, sprites ; la rutina LDIRVM necesita haber cargado previamente la dirección de inicio de la RAM, para saber porqué he puesto 0000 fíjate este dibujo https://sites.google.com/site/multivac7/files-images/TMS9918_VRAMmap_G2_300dpi.png ,así es como está formado el VDP en screen 2
+      24   00:C35A  11 00 78                ld de, #7800 ; la rutina necesita haber cargado previamente con de la dirección de inicio de la VRAM          
+      25   00:C35D  01 80 00                ld bc, 32*4; 
+      26   00:C360  CD 5C 00                call  LDIRVM ; Mira arriba, pone la explicación
+      27   00:C363  C9                      ret
+      28   00:C364                      volcar_colores_sprites_de_disco_a_vram:
+      29   00:C364  21 F1 C3                ld hl, color_sprites ; la rutina LDIRVM necesita haber cargado previamente la dirección de inicio de la RAM, para saber porqué he puesto 0000 fíjate este dibujo https://sites.google.com/site/multivac7/files-images/TMS9918_VRAMmap_G2_300dpi.png ,así es como está formado el VDP en screen 2
+      30   00:C367  11 00 74                ld de, #7400 ; la rutina necesita haber cargado previamente con de la dirección de inicio de la VRAM          
+      31   00:C36A  01 40 00                ld bc, 16*4; 
+      32   00:C36D  CD 5C 00                call  LDIRVM ; Mira arriba, pone la explicación
+      33   00:C370  C9                      ret
+      34   00:C371                       
+      35   00:C371                      
+      36   00:C371                      
+      37   00:C371                      sprites:
+      38   00:C371                          ;incbin "./src/SPR.BIN"
+      39   00:C371                          ; 0-
+      40   00:C371                          db #00,#00,#00,#30,#30,#30,#30,#3F
+      40   00:C371  00 00 00 30 30 30 30 3F 
+      41   00:C379                          db #30,#30,#30,#3F,#3F,#1F,#07,#03
+      41   00:C379  30 30 30 3F 3F 1F 07 03 
+      42   00:C381                          db #00,#00,#00,#0C,#0C,#0C,#0C,#FC
+      42   00:C381  00 00 00 0C 0C 0C 0C FC 
+      43   00:C389                          db #0C,#0C,#0C,#FC,#FC,#FC,#F0,#E0
+      43   00:C389  0C 0C 0C FC FC FC F0 E0 
+      44   00:C391                          ; 1-
+      45   00:C391                          db #30,#30,#70,#91,#91,#91,#93,#9F
+      45   00:C391  30 30 70 91 91 91 93 9F 
+      46   00:C399                          db #9F,#9F,#80,#BF,#8F,#67,#33,#30
+      46   00:C399  9F 9F 80 BF 8F 67 33 30 
+      47   00:C3A1                          db #08,#0C,#0E,#89,#89,#89,#C9,#F9
+      47   00:C3A1  08 0C 0E 89 89 89 C9 F9 
+      48   00:C3A9                          db #F9,#F9,#01,#FD,#F1,#E6,#CC,#0C
+      48   00:C3A9  F9 F9 01 FD F1 E6 CC 0C 
+      49   00:C3B1                          ; 2-player explota
+      50   00:C3B1                          db #00,#00,#18,#08,#0C,#04,#1D,#02
+      50   00:C3B1  00 00 18 08 0C 04 1D 02 
+      51   00:C3B9                          db #0F,#07,#4B,#18,#13,#0E,#38,#20
+      51   00:C3B9  0F 07 4B 18 13 0E 38 20 
+      52   00:C3C1                          db #00,#00,#00,#8C,#98,#B0,#20,#80
+      52   00:C3C1  00 00 00 8C 98 B0 20 80 
+      53   00:C3C9                          db #00,#00,#48,#40,#EC,#36,#12,#00
+      53   00:C3C9  00 00 48 40 EC 36 12 00 
+      54   00:C3D1                          ; 3-
+      55   00:C3D1                          db #E0,#E0,#E0,#00,#00,#00,#00,#00
+      55   00:C3D1  E0 E0 E0 00 00 00 00 00 
+      56   00:C3D9                          db #00,#00,#00,#00,#00,#00,#00,#00
+      56   00:C3D9  00 00 00 00 00 00 00 00 
+      57   00:C3E1                          db #00,#00,#00,#00,#00,#00,#00,#00
+      57   00:C3E1  00 00 00 00 00 00 00 00 
+      58   00:C3E9                          db #00,#00,#00,#00,#00,#00,#00,#00
+      58   00:C3E9  00 00 00 00 00 00 00 00 
+      59   00:C3F1                      
+      60   00:C3F1                      color_sprites:
+      61   00:C3F1                          ;incbin "./src/CLRSPR.BIN"
+      62   00:C3F1                          ; 0-
+      63   00:C3F1                          db #07,#07,#07,#07,#07,#07,#07,#07
+      63   00:C3F1  07 07 07 07 07 07 07 07 
+      64   00:C3F9                          db #07,#07,#07,#07,#07,#08,#08,#0A
+      64   00:C3F9  07 07 07 07 07 08 08 0A 
+      65   00:C401                          ; 1-
+      66   00:C401                          db #0E,#0E,#0E,#0E,#0E,#0E,#0E,#0E
+      66   00:C401  0E 0E 0E 0E 0E 0E 0E 0E 
+      67   00:C409                          db #0E,#0E,#0E,#0E,#0E,#0E,#0E,#0E
+      67   00:C409  0E 0E 0E 0E 0E 0E 0E 0E 
+      68   00:C411                          ; 2-
+      69   00:C411                          db #08,#08,#08,#08,#08,#08,#08,#0B
+      69   00:C411  08 08 08 08 08 08 08 0B 
+      70   00:C419                          db #0A,#0A,#08,#08,#08,#08,#08,#08
+      70   00:C419  0A 0A 08 08 08 08 08 08 
+      71   00:C421                          ; 3-
+      72   00:C421                          db #08,#08,#08,#00,#00,#00,#00,#00
+      72   00:C421  08 08 08 00 00 00 00 00 
+      73   00:C429                          db #00,#00,#00,#00,#00,#00,#00,#00
+      73   00:C429  00 00 00 00 00 00 00 00 
+      74   00:C431                      
+      75   00:C431                      FINAL:
+
+    LABELS
+-------------------------------------------------
+00:0000005F X CHGMOD
+00:0000005C   LDIRVM
+00:000000D5 X GTSTCK
+00:0000C350   INICIO
+00:0000C357   volcar_sprites_de_disco_a_vram
+00:0000C364   volcar_colores_sprites_de_disco_a_vram
+00:0000C371   sprites
+00:0000C3F1   color_sprites
+00:0000C431   FINAL
+
+
+ Output: src/rutinas.out
+-------------------------------------------------
+
+ Page: 00
+  Org: 0000C350  Size: *  Used: 00000000
+
+    No output
+
+ Output: rutinas.bin
+-------------------------------------------------
+
+ Page: 00
+  Org: 0000C350  Size: *  Used: 000000E8
+
+   Address   Length Align   Label
+   0000C350     232         INICIO

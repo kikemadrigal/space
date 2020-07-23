@@ -1,0 +1,121 @@
+Sjasm Z80 Assembler v0.42c - www.xl2s.tk             [2020.07.23 - 07:21:16]
+
+src/scloader.asm
+Errors: 0
+
+       1   00:0000                              output "scloader.bin"
+       2   00:9000                      
+       3   00:9000  FE                      db   #fe               ; ID archivo binario, siempre hay que poner el mismo 0FEh
+       4   00:9001  00 90                   dw   INICIO            ; dirección de inicio
+       5   00:9003  31 C3                   dw   FINAL - 1         ; dirección final
+       6   00:9005  00 90                   dw   INICIO            ; dircción del programa de ejecución (para cuando pongas r en bload"nombre_programa", r)
+       7   00:9007                      
+       8   00:9007                          org #9000   ; org se utiliza para decirle al z80 en que posición de memoria empieza nuestro programa (es la 33280 en decimal), en hezadecimal sería #8200
+       9   00:9000                      
+      10   00:9000  (00:005F)           CHGMOD equ #005F   ; Cambia el modo de screen pero previamente necesita que se le asigne el modo en el registro a
+      11   00:9000  (00:005C)           LDIRVM equ #005C   ;Tansfiere bloques de la RAM a la VRAM, es la más importante, necesita previamente asignar valor al registro bc con la longitud, dc con la dirección de inicio de la VRAM y hl con la dirección de inicio de la RAM:
+      12   00:9000  (00:00D5)           GTSTCK equ #00D5   ;si le pasas al registro a un 0 detectará los cursores,un 1 para el joystick 1 y 2 para el joystick 2
+      13   00:9000                                         ;devuelve en a 1 arriba, 2 diagonal arriba derecha,3 derecha, asi hasta 7
+      14   00:9000                      
+      15   00:9000                      INICIO:
+      16   00:9000  CD 2C 90                call inicializar_modo_pantalla
+      17   00:9003  CD 07 90                call cargar_tiles_colores_mapa ;cargamos la pantalla con la foto de presentación
+      18   00:9006                          ;call #009F
+      19   00:9006  C9                      ret
+      20   00:9007                      
+      21   00:9007                      
+      22   00:9007                      ;Es la pantalla con la foto
+      23   00:9007                      cargar_tiles_colores_mapa:
+      24   00:9007                      ;Para comprender como se distrivuye la memoria del VDP ir a: https://sites.google.com/site/multivac7/files-images/TMS9918_VRAMmap_G2_300dpi.png
+      25   00:9007                      ;-----------------------------Tileset -------------------------------------------
+      26   00:9007                          ;screen1 es el splash_screen o pantalla incial con la foto de presentación
+      27   00:9007  21 32 90                ld hl, tiles ; la rutina LDIRVM necesita haber cargado previamente la dirección de inicio de la RAM, para saber porqué he puesto 0000 fíjate este dibujo https://sites.google.com/site/multivac7/files-images/TMS9918_VRAMmap_G2_300dpi.png ,así es como está formado el VDP en screen 2
+      28   00:900A  11 00 00                ld de, #0000 ; la rutina necesita haber cargado previamente con de la dirección de inicio de la VRAM          
+      29   00:900D  01 00 18                ld bc, #1800; son los 3 bancos de #800
+      30   00:9010  CD 5C 00                call  LDIRVM ; Mira arriba, pone la explicación
+      31   00:9013                          ;call depack_VRAM   
+      32   00:9013                          ;call unpack 
+      33   00:9013                      ;--------------------------------Colores--------------------------------------
+      34   00:9013  21 32 A8                ld hl, color
+      35   00:9016  11 00 20                ld de, #2000 
+      36   00:9019  01 00 18                ld bc, #1800 ;son los 3 bancos de #800
+      37   00:901C  CD 5C 00                call  LDIRVM
+      38   00:901F                          ;call depack_VRAM
+      39   00:901F                          ;call unpack
+      40   00:901F                      ;------------------------------Mapa o tabla de nombres-------------------------------
+      41   00:901F  21 32 C0                ld hl, mapa
+      42   00:9022  11 00 18                ld de, #1800 
+      43   00:9025  01 00 03                ld bc, #300
+      44   00:9028  CD 5C 00                call  LDIRVM
+      45   00:902B                          ;call depack_VRAM
+      46   00:902B                          ;call unpack   
+      47   00:902B  C9                      ret
+      48   00:902C                      ;*************************Final de cargar_pantalla_screen1 la de la foto**********************
+      49   00:902C                      
+      50   00:902C                      inicializar_modo_pantalla:
+      51   00:902C                           ;Cambiamos el modo de pantalla
+      52   00:902C  3E 02                   ld  a,2     ; La rutina CHGMOD nos obliga a poner en el registro a el modo de pantalla que queremos 
+      53   00:902E  CD 5F 00                call CHGMOD ; Mira arriba, pone la explicación, pone screen 2 y sprite de 16 sin apliar
+      54   00:9031  C9                      ret
+      55   00:9032                      
+      56   00:9032                      
+      57   00:9032                      
+      58   00:9032                      ;************************************Final de inicializar_modo_pantalla********************
+      59   00:9032                      
+      60   00:9032                      
+      61   00:9032                      
+      62   00:9032                      
+      63   00:9032                      ;Esta es la pantalla con la foto
+      64   00:9032                      tiles:
+      65   00:9032  (1800)                  incbin "./src/scloadertiles.bin.chr"
+      66   00:A832                      color:
+      67   00:A832  (1800)                  incbin "./src/scloadertiles.bin.clr"
+      68   00:C032                      mapa: 
+      69   00:C032  (0300)                  incbin "./src/scloadermap.bin"
+      70   00:C332                      
+      71   00:C332                      
+      72   00:C332                      
+      73   00:C332                      
+      74   00:C332                      FINAL:
+      75   00:C332                      
+      76   00:C332                      
+      77   00:C332                      
+      78   00:C332                      
+      79   00:C332                      
+      80   00:C332                      
+      81   00:C332                      
+      82   00:C332                      
+      83   00:C332                      
+      84   00:C332                      
+      85   00:C332                      
+
+    LABELS
+-------------------------------------------------
+00:0000005F   CHGMOD
+00:0000005C   LDIRVM
+00:000000D5 X GTSTCK
+00:00009000   INICIO
+00:00009007   cargar_tiles_colores_mapa
+00:0000902C   inicializar_modo_pantalla
+00:00009032   tiles
+00:0000A832   color
+00:0000C032   mapa
+00:0000C332   FINAL
+
+
+ Output: src/scloader.out
+-------------------------------------------------
+
+ Page: 00
+  Org: 00009000  Size: *  Used: 00000000
+
+    No output
+
+ Output: scloader.bin
+-------------------------------------------------
+
+ Page: 00
+  Org: 00009000  Size: *  Used: 00003339
+
+   Address   Length Align   Label
+   00009000   13113         INICIO

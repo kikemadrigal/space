@@ -26,8 +26,25 @@
 
 
 
-20 'clear 500
-30 goto 1000 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -67,7 +84,7 @@
 
 
 
-1000 screen 0:cls:key off
+1000 clear:screen 0:cls:key off
 
 1010 color 15,1,1: defint a-z
 1020 locate 10,5

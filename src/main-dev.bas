@@ -2,35 +2,52 @@
 1 ' Program space - MSX Murcia 2020'
 1 ' MSX Basic and ensambler Z80'
 
+1 ' Si estás en visual stido code, pulsa Ctrl+f, pega la línea a buscar y pulsa f3 para siguiente'
 1 ' Variables
 1 '------------'
 1 ' Screen: w, h, si, sc
-1 ' Player: px py pw ph pd pu pv pe pc
+1 ' Player: px py pw ph pd pv pe pc
 1 ' Enemy: 
 1 ' fire: 
 1 ' solid objets: 
 1 ' soft objets: 
 
+
 1 ' Lines
 1 '--------'
-1 ' Splash screen: 40'
-1 ' Screen 1: Inicialize 10000, load sc5: 10220, Load line block: 10500 '
-1 ' Game over: 900'
+1 ' Selection Screen: 100
+1 ' Winning Screen: 300
+1 ' Game over: 500
+1 ' Screen 1'
 1 ' General rutines: '
 1 '     Renderer: 2000 '
-1 '     Collision system: 
+1 '     Check energy: 3000'
+1 '     Input system: 4000'
+1 '     Collision system: 5000: 
 1 '         Collision enemy:'
 1 '         Collision solid block'
-1 '     Input capture system'
+1 '     HUD system 7000'
+1 ' Pler rutines: 8000'
+1 '     initialize player: 8000
+1 '     update palyer: 8100
+1 ' Enemy rutines: 9000'
+1 '     Iniciliace enemy: 9000'
+1 '     Update enemy: 9100'
+1 ' Fire rutines: 9500'
+1 '     Inicialize fires: 9500'
+1 '     Update fires: 9700'
+1 ' Solid objets rutines: 9900'
+1 ' Screen 1 rutines: 10000'
+
+
+
+
+
+
+
 1 '------------------------------------'
 1 '     Pantalla de selección 
 1 '------------------------------------'
-
-20 'clear 500
-30 goto 1000 
-1 '-----------------------------------------------------'
-1 'Subrutina cargar sprites y colores sprites pantallas'
-1 '-----------------------------------------------------'
 100 screen 0:key off:color 15,1,1
 110 locate 2,6: print "Presione espacio para empezar"
 120 locate 12,7:print "MSX Murcia"
@@ -66,8 +83,8 @@
 1 '     Pantalla 1 / Screen 1 ' 
 1 '------------------------------------'
 
-1 ' borramos la pantalla y quitamos las letras de las teclas de función'
-1000 screen 0:cls:key off
+1 ' borramos todas las variables,borramos la pantalla y quitamos las letras de las teclas de función'
+1000 clear:screen 0:cls:key off
 1 ' Color letras blancas, fondo azul oscuro'
 1010 color 15,1,1: defint a-z
 1020 locate 10,5
@@ -177,7 +194,7 @@
 
 
 1 ' ----------------------' 
-1 '   Mostrar información
+1 '   Barra de estado / HUD System (ver https://es.wikipedia.org/wiki/HUD_(inform%C3%A1tica))
 1 ' ----------------------'
 1 ' Mostraremos los sprites cargados en la page 2 que son los números que aparecen arriba con la información
     7000 'sprite 60,(),15,60
@@ -341,7 +358,7 @@
 
 
 1 ' ------------------------------------------------------------------------------'
-1 ' -------------------------Rutinas disparos / fire --------------------------------------'
+1 ' -------------------------Rutinas disparos / fires --------------------------------------'
 1 ' ------------------------------------------------------------------------------'
     1 ' Crearemos 2 disparos, el dx es el disparo del player, el dx es el del enemigo'
     1 ' dv es la velocidad de los disparos, da es si el disparo está activo'

@@ -6,17 +6,18 @@ rem necesitamos el .bin de la pantalla de carga y del reproductor de música
 start /wait tools/sjasm/sjasm.exe src/scloader.asm
 start /wait tools/sjasm/sjasm.exe src/rutinas.asm
 rem start /wait tools/sjasm/sjasm.exe src/music.asm
-move /Y scloader.bin ./src
-move /Y rutinas.bin ./src
-rem move /Y music.bin ./src
-rem del /F src/scloader.lst
-rem del /F src/music.lst
+move /Y scloader.bin ./obj
+move /Y scloader.lst ./obj
+move /Y rutinas.bin ./obj
+move /Y rutinas.lst ./obj
 
 
-rem /*******borrando comentarios y añadir números de líneas*******/
+
+rem /*******borrando comentarios*******/
 rem para ejcutar este comando necesitas tener java jre instalado
-start /wait java -jar tools/deletecomments/deletecomments.jar src/main-dev.bas
-
+rem start /wait java -jar tools/deletecomments/deletecomments.jar src/main-dev.bas
+rem escribe type /? y find /? paa más ayuda
+type src\main-dev.bas | find /V  "1'"  > obj\main.bas
 
 
 rem /************Diskmanager******************/
@@ -27,13 +28,13 @@ start /wait tools/Disk-Manager/DISKMGR.exe -A -F -C bin/main.dsk src/AUTOEXEC.BA
 rem añadimos el xbasic para que el código vaya más rápido https://www.konamiman.com/msx/msx2th/kunbasic.txt
 start /wait tools/Disk-Manager/DISKMGR.exe -A -F -C bin/main.dsk src/xbasic.bin
 rem main.bas contiene mi código fuente
-start /wait tools/Disk-Manager/DISKMGR.exe -A -F -C bin/main.dsk src/main.bas
+start /wait tools/Disk-Manager/DISKMGR.exe -A -F -C bin/main.dsk obj/main.bas
 rem le metemos el archivo binario con la pantalla de carga
-start /wait tools/Disk-Manager/DISKMGR.exe -A -F -C bin/main.dsk src/scloader.bin
+start /wait tools/Disk-Manager/DISKMGR.exe -A -F -C bin/main.dsk obj/scloader.bin
 rem rutinas para cargar sprites
-start /wait tools/Disk-Manager/DISKMGR.exe -A -F -C bin/main.dsk src/rutinas.bin
+start /wait tools/Disk-Manager/DISKMGR.exe -A -F -C bin/main.dsk obj/rutinas.bin
 rem le metemos el archivo binario con la música
-rem start /wait tools/Disk-Manager/DISKMGR.exe -A -F -C bin/main.dsk src/music.bin
+rem start /wait tools/Disk-Manager/DISKMGR.exe -A -F -C bin/main.dsk obj/music.bin
 
 
 
